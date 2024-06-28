@@ -1,0 +1,60 @@
+#include <Adafruit_NeoPixel.h>
+#include <EasyUltrasonic.h>
+
+#ifdef _AVR_
+#include <avr/power.h> // Required for 16 MHz Adafruit Trinket
+#endif
+
+// define for vibration motor
+#define VIBRATION_MOTOR_PIN D3
+
+// defines for distance sensor
+#define TRIG_PIN D7
+#define ECHO_PIN D8
+
+// an EasyUltrasonic class
+EasyUltrasonic ultrasonic;
+
+// defines for LED strip
+#define DIN_PIN D4 
+#define NUM_OF_LEDS 11 
+
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUM_OF_LEDS, DIN_PIN, NEO_GRB + NEO_KHZ800);
+
+void setup() {
+  pinMode(VIBRATION_MOTOR_PIN, OUTPUT); 
+  pixels.begin(); 
+  pixels.setBrightness(80); 
+  Serial.begin(9600);
+
+  ultrasonic.attach(TRIG_PIN, ECHO_PIN);
+}
+
+void loop() {
+  float distanceCM = ultrasonic.getDistanceCM();
+  pixels.clear();
+
+  Serial.print("Distance: ");
+  Serial.print(distanceCM);
+  Serial.println(" cm");
+
+  // if the distance is less than 2 meters
+  if (distanceCM < 200) {
+    for (int i = 0; i < NUM_OF_LEDS; i++) {
+      pixels.setPixelColor(i, pixels.Color(0, 255, 0)); 
+    }
+    pixels.show();
+    // vibration motor off
+    digitalWrite(VIBRATION_MOTOR_PIN, LOW);
+} 
+  else {
+    // led strip on (red)
+    for (int j = 0; j < NUM_OF_LEDS; j++) {
+      pixels.setPixelColor(j, pixels.Color(255, 0, 0)); 
+    }
+    pixels.show();
+    // vibration motor on
+   digitalWrite(VIBRATION_MOTOR_PIN, HIGH);
+  }
+  delay(500);
+}
