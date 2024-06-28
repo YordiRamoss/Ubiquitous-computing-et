@@ -1,0 +1,57 @@
+#include <Adafruit_NeoPixel.h>
+
+// define for vibration motor
+#define VIBRATION_MOTOR_PIN D3
+
+// defines for distance sensor
+#define TRIG_PIN D7
+#define ECHO_PIN D8
+
+// defines for LED strip
+#define dinPin D4 	 
+#define numOfLeds 12 
+
+// object to direct LED strip
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(numOfLeds, dinPin, NEO_GRB + NEO_KHZ800);
+
+void setup() {
+  pinMode(VIBRATION_MOTOR_PIN, OUTPUT);
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+
+	pixels.begin();
+	pixels.setBrightness(80);
+}
+
+void loop() {
+  // send out a sonar beam
+  digitalWrite(TRIG_PIN, LOW);
+  delay(1);
+  digitalWrite(TRIG_PIN, HIGH);
+  delay(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  // 'catch' the sonar beam, calculate the distance
+  int duration = pulseIn(ECHO_PIN, HIGH);
+  int distance = (duration / 29) / 2; // duration / 29 / 2 to convert to centimeters
+
+  if (distance < 200) {
+    // LED strip on (green)
+    for (int i = 0; i < numOfLeds; i++){
+      pixels.setPixelColor(i, pixels.Color(0, 255, 0)); 
+      pixels.show();
+    }
+
+    // vibration motor off
+    digitalWrite(VIBRATION_MOTOR_PIN, LOW);
+  } else {
+    // led strip off (red)
+    for (int j = 0; j < numOfLeds; j++){
+      pixels.setPixelColor(j, pixels.Color(255, 0, 0)); 
+      pixels.show(); 
+    }
+    // vibration motor on
+    digitalWrite(VIBRATION_MOTOR_PIN, HIGH);
+  }
+  delay(500);
+}
