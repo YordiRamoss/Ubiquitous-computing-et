@@ -1,0 +1,48 @@
+#include <Adafruit_NeoPixel.h>
+
+#define VIBRATION_MOTOR_PIN D3
+
+#define TRIG_PIN D7
+#define ECHO_PIN D8
+
+#define dinPin D4 	
+#define numOfLeds 8
+
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(numOfLeds, dinPin, NEO_GRB + NEO_KHZ800);
+
+void setup() {
+  pinMode(VIBRATION_MOTOR_PIN, OUTPUT); // vibration motor is output
+  pinMode(TRIG_PIN, OUTPUT); // trigger pin is output
+  pinMode(ECHO_PIN, INPUT); // echo pin is input
+
+	pixels.begin(); // Initializes the NeoPixel library
+	pixels.setBrightness(80); // Value from 0 to 100%
+}
+
+void loop() {
+  digitalWrite(TRIG_PIN, LOW);
+  delay(1);
+  digitalWrite(TRIG_PIN, HIGH);
+  delay(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  int duration = pulseIn(ECHO_PIN, HIGH);
+  int distance = (duration / 29) / 2;
+
+
+  if (distance < 200) {
+    for (int i = 0; i < numOfLeds; i++){
+      pixels.setPixelColor(i, pixels.Color(0, 255, 0)); 
+      pixels.show();
+    }
+
+    digitalWrite(VIBRATION_MOTOR_PIN, HIGH);
+  } else {
+    for (int j = 0; j < numOfLeds; j++){
+      pixels.setPixelColor(j, pixels.Color(255, 0, 0)); 
+      pixels.show();
+    }
+    digitalWrite(VIBRATION_MOTOR_PIN, HIGH)
+  }
+  delay(500);
+}
